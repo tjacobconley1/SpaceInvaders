@@ -3,7 +3,7 @@ package com.tconley.spaceinvaders
 import android.graphics.RectF
 import android.util.Log
 
-class Bullet(screenX: Int, screenY: Int) {
+class Bullet(screenX: Int, private val screenY: Int) {
 
     // Bullet position
     private var x: Float = 0f
@@ -45,7 +45,6 @@ class Bullet(screenX: Int, screenY: Int) {
 
     // --- Shoot Method ---
     fun shoot(startX: Float, startY: Float, direction: Int): Boolean {
-        Log.d("shoot", "Called with direction: $direction isActive = $isActive")
         return if (!isActive) {
             x = startX
             y = startY
@@ -66,15 +65,12 @@ class Bullet(screenX: Int, screenY: Int) {
         rect.set(x, y, x + width, y + height)
 
         // Deactivate bullet if it moves off-screen
-        if (heading == UP && y < height) {
+        if (heading == UP && y < 0) {
             isActive = false
             Log.d("Bullet", "Deactivated bullet: moved off top of screen")
-        } else if (heading == DOWN && y > height) {
+        } else if (heading == DOWN && y > screenY) {
             isActive = false
             Log.d("Bullet", "Deactivated bullet: moved off bottom of screen")
         }
     }
-
-
-
 }

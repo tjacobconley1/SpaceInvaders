@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.Display
 import androidx.activity.ComponentActivity
 
-class SpaceInvadersActivity: ComponentActivity() {
+class SpaceInvadersActivity : ComponentActivity() {
 
     private lateinit var spaceInvadersView: SpaceInvadersView
 
@@ -21,7 +21,6 @@ class SpaceInvadersActivity: ComponentActivity() {
         // Initialize spaceInvadersView and set it as the view
         spaceInvadersView = SpaceInvadersView(this, size.x, size.y)
         setContentView(spaceInvadersView)
-
     }
 
     override fun onResume() {
