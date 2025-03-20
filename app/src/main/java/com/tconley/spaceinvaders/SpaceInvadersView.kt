@@ -69,6 +69,14 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
     private val pauseButton = RectF(screenX - 150f, 50f, screenX - 50f, 150f)
     private var isPaused = false
 
+    // Joystick
+//    private val joystickRadius = 200
+//    private val joystickCenterX = 200f
+//    private val joystickCenterY = (screenY - 250f)
+//    private var joystickActive = false
+//    private var joystickAngle = 0
+//    private var joystickStrength = 0
+
     init {
         // Ask SurfaceView to set up our object
         this.setWillNotDraw(false)
@@ -105,6 +113,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
         prepareLevel()
     }
 
+    // PREPARE THE GAME LEVEL
     private fun prepareLevel() {
         // Here we will initialize all the game objects
         menaceInterval = 1000
@@ -179,6 +188,18 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
 
         // Has the player lost
         var lost = false
+
+        // Move the player's ship based on joystick input
+//        if (joystickStrength > 10) { // Ignore very small movements
+//            when {
+//                joystickAngle in 45..135 -> playerShip.setMovementState(PlayerShip.RIGHT)
+//                joystickAngle in 225..315 -> playerShip.setMovementState(PlayerShip.STOPPED)
+//                joystickAngle in 135..225 -> playerShip.setMovementState(PlayerShip.LEFT)
+//                else -> playerShip.setMovementState(PlayerShip.RIGHT)
+//            }
+//        } else {
+//            playerShip.setMovementState(PlayerShip.STOPPED)
+//        }
 
         // Move the player's ship
         playerShip.update(fps)
@@ -330,6 +351,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
         }
     }
 
+// DRAW ==========================
     private fun draw() {
         // Make sure our drawing surface is valid, or we crash
         if (holder.surface.isValid) {
@@ -344,6 +366,9 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
 
             // Draw the player spaceship
             canvas.drawBitmap(playerShip.getBitmap(), playerShip.getX(), (screenY - 50).toFloat(), paint)
+
+            // Draw joystick
+            // drawJoystick(canvas)
 
             // Draw the invaders
             for (invader in invaders) {
@@ -382,7 +407,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
 
             canvas.drawText("Score: $score   Lives: $lives", padding, textBaseline, paint)
 
-            // PAUSE BUTTON
+            // Draw the pause button
             paint.color = android.graphics.Color.GRAY
             canvas.drawRoundRect(pauseButton, 30f, 30f, paint) // Rounded corners
 
@@ -434,6 +459,27 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
         }
     }
 
+    // Draw Joystick
+    // val joystickRadius = 100  // Halved outer ring
+//    private val knobRadius = 60        // Larger knob
+//    private val joystickSensitivity = 1.5f  // Increase movement sensitivity
+
+//    private fun drawJoystick(canvas: Canvas) {
+//        val joystickRadius = 100
+//        // Draw the outer circle (joystick base)
+//        paint.color = android.graphics.Color.DKGRAY
+//        canvas.drawCircle(joystickCenterX, joystickCenterY, joystickRadius.toFloat(), paint)
+//
+//        // Calculate new joystick knob position with increased sensitivity
+//        val adjustedStrength = (joystickStrength / 100f) * joystickRadius * joystickSensitivity
+//        val knobX = joystickCenterX + adjustedStrength * Math.cos(Math.toRadians(joystickAngle.toDouble())).toFloat()
+//        val knobY = joystickCenterY + adjustedStrength * Math.sin(Math.toRadians(joystickAngle.toDouble())).toFloat()
+//
+//        // Draw the larger joystick knob
+//        paint.color = android.graphics.Color.LTGRAY
+//        canvas.drawCircle(knobX, knobY, knobRadius.toFloat(), paint)
+//    }
+
     // --- LIFECYCLE METHODS (Pause & Resume) ---
 
     fun resume() {
@@ -471,6 +517,19 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
                     paused = isPaused
                 } else if (!isPaused) {
                     paused = false
+//                    val dx = motionEvent.x - joystickCenterX
+//                    val dy = motionEvent.y - joystickCenterY
+//                    val distance = Math.sqrt((dx * dx + dy * dy).toDouble())
+
+//                    if (distance < joystickRadius) {
+//                        joystickActive = true
+//                        joystickAngle = Math.toDegrees(Math.atan2(dy.toDouble(), dx.toDouble())).toInt()
+//                        if (joystickAngle < 0) joystickAngle += 360
+//                        joystickStrength = ((distance / joystickRadius) * 100).toInt()
+//                    } else {
+//                        joystickActive = false
+//                        joystickStrength = 0
+//                    }
                     if (motionEvent.y > screenY - screenY / 8) {
                         playerShip.setMovementState(
                             if (motionEvent.x > screenX / 2) PlayerShip.RIGHT else PlayerShip.LEFT
@@ -487,6 +546,8 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
             // Player has removed finger from screen
             MotionEvent.ACTION_UP -> {
                 // Handle lift-off event
+//                joystickActive = false
+//                joystickStrength = 0
                 if (motionEvent.y > screenY - screenY / 10) {
                     playerShip.setMovementState(PlayerShip.STOPPED)
                 }

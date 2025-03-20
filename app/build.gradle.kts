@@ -69,4 +69,7 @@ dependencies {
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.ktx)
     kapt(libs.roomCompiler)
+
+    // Navigation
+    implementation(libs.androidx.navigation)
 }
