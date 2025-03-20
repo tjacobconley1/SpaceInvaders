@@ -71,6 +71,8 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
     private var uhOrOh = false
     private var lastMenaceTime: Long = System.currentTimeMillis()
 
+    private var gameOver = false
+
     init {
         // Ask SurfaceView to set up our object
         this.setWillNotDraw(false)
@@ -166,21 +168,6 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
                 }
             }
         }
-//        numBricks = 0
-//        for (shelterNumber in 0 until 4) {
-//            for (column in 0 until 10) {
-//                for (row in 0 until 5) {
-//                    bricks[numBricks] = DefenceBrick(
-//                        screenX,
-//                        screenY,
-//                        shelterNumber,
-//                        column,
-//                        row
-//                    )
-//                    numBricks++
-//                }
-//            }
-//        }
     }
 
     // --- PLACE THE GAME LOOP METHODS RIGHT AFTER prepareLevel() ---
@@ -360,6 +347,7 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
 
                 // Is it game over?
                 if (lives == 0) {
+                    gameOver = true
                     paused = true
                     lives = 3
                     score = 0
@@ -416,6 +404,22 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
             paint.textSize = 40f
             canvas.drawText("Score: $score   Lives: $lives", 10f, 50f, paint)
 
+            if (gameOver) {
+                // Semi-transparent overlay
+                paint.color = android.graphics.Color.argb(180, 0, 0, 0)
+                canvas.drawRect(0f, 0f, screenX.toFloat(), screenY.toFloat(), paint)
+
+                // Game Over Text
+                paint.color = android.graphics.Color.WHITE
+                paint.textSize = 80f
+                paint.textAlign = Paint.Align.CENTER
+                canvas.drawText("GAME OVER", (screenX / 2).toFloat(), (screenY / 2 - 50).toFloat(), paint)
+
+                // Restart Message
+                paint.textSize = 50f
+                canvas.drawText("Tap to Restart", (screenX / 2).toFloat(), (screenY / 2 + 50).toFloat(), paint)
+            }
+
             // Draw everything to the screen
             holder.unlockCanvasAndPost(canvas)
         }
@@ -443,6 +447,9 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
         when (motionEvent.action and MotionEvent.ACTION_MASK) {
             // Player has touched the screen
             MotionEvent.ACTION_DOWN -> {
+                // if game over tap to restart
+                gameOver = false
+
                 // Handle touch event (e.g., move spaceship, fire bullet)
                 paused = false
 
@@ -454,10 +461,8 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
 
                 if (motionEvent.y < screenY - screenY / 8) {
                     // Shots fired
-                    // TODO converted screenY to float here to avoid integer division
                     if (bullet.shoot(playerShip.getX() + playerShip.getLength() / 2, screenY.toFloat(), Bullet.UP)) {
                         playSound()
-//                        soundPool.play(shootID, 1f, 1f, 0, 0, 1f)
                     }
                 }
             }
