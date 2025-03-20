@@ -1,6 +1,4 @@
 import android.content.Context
-import android.content.res.AssetFileDescriptor
-import android.content.res.AssetManager
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
@@ -15,7 +13,6 @@ import com.tconley.spaceinvaders.DefenceBrick
 import com.tconley.spaceinvaders.Invader
 import com.tconley.spaceinvaders.PlayerShip
 import com.tconley.spaceinvaders.R
-import java.io.IOException
 
 class SpaceInvadersView(context: Context, private val screenX: Int, private val screenY: Int) : SurfaceView(context), Runnable {
 
@@ -72,6 +69,8 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
     private var lastMenaceTime: Long = System.currentTimeMillis()
 
     private var gameOver = false
+    private val pauseButton = RectF(screenX - 150f, 50f, screenX - 50f, 150f)
+    private var isPaused = false
 
     init {
         // Ask SurfaceView to set up our object
@@ -95,31 +94,6 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
         playerExplodeID = soundPool.load(context, R.raw.playerexplode, 1)
         uhID = soundPool.load(context, R.raw.uh, 1)
         ohID = soundPool.load(context, R.raw.oh, 1)
-
-        try {
-            val assetManager: AssetManager = context.assets
-            var descriptor: AssetFileDescriptor
-
-            descriptor = assetManager.openFd("shoot.ogg")
-            shootID = soundPool.load(descriptor, 1)
-
-            descriptor = assetManager.openFd("invaderexplode.ogg")
-            invaderExplodeID = soundPool.load(descriptor, 1)
-
-            descriptor = assetManager.openFd("damageshelter.ogg")
-            damageShelterID = soundPool.load(descriptor, 1)
-
-            descriptor = assetManager.openFd("playerexplode.ogg")
-            playerExplodeID = soundPool.load(descriptor, 1)
-
-            descriptor = assetManager.openFd("uh.ogg")
-            uhID = soundPool.load(descriptor, 1)
-
-            descriptor = assetManager.openFd("oh.ogg")
-            ohID = soundPool.load(descriptor, 1)
-        } catch (e: IOException) {
-            Log.e("error", "Failed to load sound files")
-        }
 
         // Ensure sound is loaded before playing
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
@@ -401,9 +375,34 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
 
             // Draw the score and remaining lives
             paint.color = android.graphics.Color.argb(255, 249, 129, 0)
-            paint.textSize = 40f
-            canvas.drawText("Score: $score   Lives: $lives", 10f, 50f, paint)
+            paint.textSize = 50f // Ensure readable size
+            paint.textAlign = Paint.Align.LEFT // Align text correctly
 
+            val padding = 20f // Add padding to avoid clipping
+            val textBaseline = padding + paint.textSize // Ensure proper baseline positioning
+
+            canvas.drawText("Score: $score   Lives: $lives", padding, textBaseline, paint)
+
+            // PAUSE BUTTON
+            paint.color = android.graphics.Color.GRAY
+            canvas.drawRoundRect(pauseButton, 30f, 30f, paint) // Rounded corners
+
+            // Draw the "||" with Thicker Strokes
+            paint.color = android.graphics.Color.WHITE
+            paint.strokeWidth = 10f
+            paint.style = Paint.Style.FILL // Ensures solid bars
+
+            // Define dimensions for the pause bars
+            val barWidth = 15f // Width of each pause bar
+            val barHeight = 60f // Height of each pause bar
+            val centerX = pauseButton.centerX()
+            val centerY = pauseButton.centerY()
+
+            // Draw two thick vertical bars for the pause icon
+            canvas.drawRect(centerX - barWidth - 5f, centerY - barHeight / 2, centerX - 5f, centerY + barHeight / 2, paint)
+            canvas.drawRect(centerX + 5f, centerY - barHeight / 2, centerX + barWidth + 5f, centerY + barHeight / 2, paint)
+
+            // If lives = 0 show game over overlay
             if (gameOver) {
                 // Semi-transparent overlay
                 paint.color = android.graphics.Color.argb(180, 0, 0, 0)
@@ -418,6 +417,17 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
                 // Restart Message
                 paint.textSize = 50f
                 canvas.drawText("Tap to Restart", (screenX / 2).toFloat(), (screenY / 2 + 50).toFloat(), paint)
+            }
+
+            // show pause overlay
+            if (isPaused) {
+                paint.color = android.graphics.Color.argb(180, 0, 0, 0)
+                canvas.drawRect(0f, 0f, screenX.toFloat(), screenY.toFloat(), paint)
+
+                paint.color = android.graphics.Color.WHITE
+                paint.textSize = 80f
+                paint.textAlign = Paint.Align.CENTER
+                canvas.drawText("PAUSED", (screenX / 2).toFloat(), (screenY / 2).toFloat(), paint)
             }
 
             // Draw everything to the screen
@@ -447,22 +457,30 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
         when (motionEvent.action and MotionEvent.ACTION_MASK) {
             // Player has touched the screen
             MotionEvent.ACTION_DOWN -> {
-                // if game over tap to restart
-                gameOver = false
-
-                // Handle touch event (e.g., move spaceship, fire bullet)
-                paused = false
-
-                if (motionEvent.y > screenY - screenY / 8) {
-                    playerShip.setMovementState(
-                        if (motionEvent.x > screenX / 2) PlayerShip.RIGHT else PlayerShip.LEFT
-                    )
-                }
-
-                if (motionEvent.y < screenY - screenY / 8) {
-                    // Shots fired
-                    if (bullet.shoot(playerShip.getX() + playerShip.getLength() / 2, screenY.toFloat(), Bullet.UP)) {
-                        playSound()
+                if (gameOver) {
+                    gameOver = false
+                    score = 0
+                    lives = 3
+                    prepareLevel()
+                    paused = false
+                } else if (isPaused) {
+                    // If paused, tap anywhere to resume
+                    isPaused = false
+                    paused = false
+                } else if (pauseButton.contains(motionEvent.x, motionEvent.y)) {
+                    isPaused = !isPaused
+                    paused = isPaused
+                } else if (!isPaused) {
+                    paused = false
+                    if (motionEvent.y > screenY - screenY / 8) {
+                        playerShip.setMovementState(
+                            if (motionEvent.x > screenX / 2) PlayerShip.RIGHT else PlayerShip.LEFT
+                        )
+                    }
+                    if (motionEvent.y < screenY - screenY / 8) {
+                        if (bullet.shoot(playerShip.getX() + playerShip.getLength() / 2, screenY.toFloat(), Bullet.UP)) {
+                            playSound()
+                        }
                     }
                 }
             }
