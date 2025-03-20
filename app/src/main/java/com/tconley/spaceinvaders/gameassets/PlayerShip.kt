@@ -1,9 +1,10 @@
-package com.tconley.spaceinvaders
+package com.tconley.spaceinvaders.gameassets
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RectF
+import com.tconley.spaceinvaders.R
 
 class PlayerShip(context: Context, screenX: Int, screenY: Int) {
 

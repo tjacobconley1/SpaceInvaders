@@ -6,19 +6,16 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import android.util.Log
 import android.view.MotionEvent
-import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.tconley.spaceinvaders.Bullet
-import com.tconley.spaceinvaders.DefenceBrick
-import com.tconley.spaceinvaders.Invader
-import com.tconley.spaceinvaders.PlayerShip
 import com.tconley.spaceinvaders.R
+import com.tconley.spaceinvaders.gameassets.Bullet
+import com.tconley.spaceinvaders.gameassets.DefenceBrick
+import com.tconley.spaceinvaders.gameassets.Invader
+import com.tconley.spaceinvaders.gameassets.PlayerShip
+import com.tconley.spaceinvaders.viewmodels.SpaceInvadersViewModel
 
-class SpaceInvadersView(context: Context, private val screenX: Int, private val screenY: Int) : SurfaceView(context), Runnable {
+class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersViewModel, private val screenX: Int, private val screenY: Int) : SurfaceView(context), Runnable {
 
-    // This is our thread
-    private var gameThread: Thread? = null
-    private val ourHolder: SurfaceHolder = holder
     private val paint = Paint()
 
     @Volatile
@@ -323,6 +320,8 @@ class SpaceInvadersView(context: Context, private val screenX: Int, private val 
                 if (lives == 0) {
                     gameOver = true
                     paused = true
+                    // TODO prompt player to enter their name
+                    viewModel.InsertPlayerScore("Player", score)
                     lives = 3
                     score = 0
                     prepareLevel()

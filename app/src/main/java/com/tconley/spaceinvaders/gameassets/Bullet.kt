@@ -1,4 +1,4 @@
-package com.tconley.spaceinvaders
+package com.tconley.spaceinvaders.gameassets
 
 import android.graphics.RectF
 import android.util.Log

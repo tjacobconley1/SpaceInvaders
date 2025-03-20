@@ -1,7 +1,4 @@
-package com.tconley.spaceinvaders
-
-// class DefenceBrick(screenX: Int, screenY: Int, shelterNumber: Int, column: Int, row: Int) {
-// }
+package com.tconley.spaceinvaders.gameassets
 
 import android.graphics.RectF
 

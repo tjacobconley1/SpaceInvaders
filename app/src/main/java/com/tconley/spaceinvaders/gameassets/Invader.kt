@@ -1,9 +1,10 @@
-package com.tconley.spaceinvaders
+package com.tconley.spaceinvaders.gameassets
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RectF
+import com.tconley.spaceinvaders.R
 import kotlin.random.Random
 
 class Invader(context: Context, row: Int, column: Int, screenX: Int, screenY: Int) {
@@ -84,29 +85,14 @@ class Invader(context: Context, row: Int, column: Int, screenX: Int, screenY: In
             (playerShipX > x && playerShipX < x + length)
         ) {
             // A 1 in 50 chance to shoot
-            if (Random.nextInt(50) == 0) {
+            if (Random.Default.nextInt(50) == 0) {
                 return true
             }
         }
 
         // If firing randomly (not near the player), a 1 in 1000 chance
-        return Random.nextInt(20) == 0
+        return Random.Default.nextInt(20) == 0
     }
-
-//    fun takeAim(playerShipX: Float, playerShipLength: Float): Boolean {
-//        // If near the player
-//        if ((playerShipX + playerShipLength > x && playerShipX + playerShipLength < x + length) ||
-//            (playerShipX > x && playerShipX < x + length)
-//        ) {
-//            // A 1 in 150 chance to shoot
-//            if (Random.nextInt(150) == 0) {
-//                return true
-//            }
-//        }
-//
-//        // If firing randomly (not near the player) a 1 in 2000 chance
-//        return Random.nextInt(2000) == 0
-//    }
 
     // --- Getters, Setters, and Helper Methods ---
 

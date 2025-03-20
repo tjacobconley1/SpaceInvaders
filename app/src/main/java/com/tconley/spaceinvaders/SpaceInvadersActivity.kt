@@ -5,10 +5,15 @@ import android.graphics.Point
 import android.os.Bundle
 import android.view.Display
 import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
+import com.tconley.spaceinvaders.viewmodels.SpaceInvadersViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SpaceInvadersActivity : ComponentActivity() {
 
     private lateinit var spaceInvadersView: SpaceInvadersView
+    val spaceInvadersViewModel: SpaceInvadersViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +24,7 @@ class SpaceInvadersActivity : ComponentActivity() {
         display.getSize(size)
 
         // Initialize spaceInvadersView and set it as the view
-        spaceInvadersView = SpaceInvadersView(this, size.x, size.y)
+        spaceInvadersView = SpaceInvadersView(this, spaceInvadersViewModel, size.x, size.y)
         setContentView(spaceInvadersView)
     }
 
