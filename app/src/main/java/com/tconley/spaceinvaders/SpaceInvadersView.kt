@@ -69,6 +69,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
     private val pauseButton = RectF(screenX - 150f, 50f, screenX - 50f, 150f)
     private var isPaused = false
 
+    // TODO implement joystick ?
     // Joystick
 //    private val joystickRadius = 200
 //    private val joystickCenterX = 200f
@@ -76,6 +77,17 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
 //    private var joystickActive = false
 //    private var joystickAngle = 0
 //    private var joystickStrength = 0
+
+    // Need callback in order to have player enter name
+    interface GameOverCallback {
+        fun onGameOver(score: Int)
+    }
+
+    private var gameOverCallback: GameOverCallback? = null
+
+    fun setGameOverCallback(callback: GameOverCallback) {
+        gameOverCallback = callback
+    }
 
     init {
         // Ask SurfaceView to set up our object
@@ -189,6 +201,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
         // Has the player lost
         var lost = false
 
+        // TODO implement joystick ?
         // Move the player's ship based on joystick input
 //        if (joystickStrength > 10) { // Ignore very small movements
 //            when {
@@ -342,7 +355,8 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
                     gameOver = true
                     paused = true
                     // TODO prompt player to enter their name
-                    viewModel.InsertPlayerScore("Player", score)
+                    // viewModel.InsertPlayerScore("Player", score)
+                    gameOverCallback?.onGameOver(score)
                     lives = 3
                     score = 0
                     prepareLevel()
@@ -367,6 +381,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
             // Draw the player spaceship
             canvas.drawBitmap(playerShip.getBitmap(), playerShip.getX(), (screenY - 50).toFloat(), paint)
 
+            // TODO implement joystick ?
             // Draw joystick
             // drawJoystick(canvas)
 
@@ -459,6 +474,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
         }
     }
 
+    // TODO implement joystick ?
     // Draw Joystick
     // val joystickRadius = 100  // Halved outer ring
 //    private val knobRadius = 60        // Larger knob
@@ -517,6 +533,8 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
                     paused = isPaused
                 } else if (!isPaused) {
                     paused = false
+
+                    // TODO implement joystick ?
 //                    val dx = motionEvent.x - joystickCenterX
 //                    val dy = motionEvent.y - joystickCenterY
 //                    val distance = Math.sqrt((dx * dx + dy * dy).toDouble())
@@ -545,6 +563,7 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
 
             // Player has removed finger from screen
             MotionEvent.ACTION_UP -> {
+                // TODO implement joystick ?
                 // Handle lift-off event
 //                joystickActive = false
 //                joystickStrength = 0
@@ -564,5 +583,13 @@ class SpaceInvadersView(context: Context, private val viewModel: SpaceInvadersVi
         } else {
             Log.w("SoundPool", "Sound not ready yet")
         }
+    }
+
+    fun resetGame() {
+        lives = 3
+        score = 0
+        gameOver = false
+        prepareLevel()
+        paused = true
     }
 }
